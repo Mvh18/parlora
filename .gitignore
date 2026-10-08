@@ -1,0 +1,102 @@
+# ─────────────────────────────────────────────────────────────
+# Private local artefacts — never commit
+# ─────────────────────────────────────────────────────────────
+.claude/
+openspec/
+ROADMAP.md
+CLAUDE.local.md
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ─────────────────────────────────────────────────────────────
+# Personal data and heavy binaries
+# Audio is only allowed as synthetic test fixtures.
+# ─────────────────────────────────────────────────────────────
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.webm
+!**/fixtures/synthetic/**/*.wav
+!**/fixtures/synthetic/**/*.mp3
+!**/fixtures/synthetic/**/*.flac
+!**/fixtures/synthetic/**/*.ogg
+!**/fixtures/synthetic/**/*.m4a
+!**/fixtures/synthetic/**/*.webm
+
+# Model weights
+*.gguf
+*.safetensors
+*.onnx
+*.pt
+*.pth
+*.bin
+models/
+
+# Recordings, transcripts and local databases
+recordings/
+transcripts/
+*.sqlite
+*.sqlite3
+*.db
+
+# ─────────────────────────────────────────────────────────────
+# Python
+# ─────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.import_linter_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# ─────────────────────────────────────────────────────────────
+# Node / Next.js
+# ─────────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+
+# ─────────────────────────────────────────────────────────────
+# Editors and OS
+# ─────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
