@@ -1,0 +1,14 @@
+# Generated or vendored files
+uv.lock
+pnpm-lock.yaml
+CHANGELOG.md
+contracts/openapi.json
+
+# Legal text must stay verbatim
+LICENSE
+
+# Private, untracked folders
+.claude/
+openspec/
+ROADMAP.md
+CLAUDE.local.md
