@@ -1,0 +1,53 @@
+{
+  "name": "Parlora",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspaces/parlora",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/parlora,type=bind",
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=parlora-venv,target=/workspaces/parlora/.venv,type=volume",
+    "source=parlora-node-modules,target=/workspaces/parlora/node_modules,type=volume",
+    "source=parlora-uv-cache,target=/home/vscode/.cache/uv,type=volume",
+    "source=parlora-pnpm,target=/home/vscode/.local/share/pnpm,type=volume",
+    "source=parlora-pre-commit,target=/home/vscode/.cache/pre-commit,type=volume",
+    "source=parlora-playwright,target=/home/vscode/.cache/ms-playwright,type=volume",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "runArgs": ["--group-add=0"],
+  "hostRequirements": {
+    "gpu": "optional"
+  },
+  "containerEnv": {
+    "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal"
+  },
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": { "label": "web" },
+    "8000": { "label": "server" }
+  },
+  "postCreateCommand": "just setup",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "nefrob.vscode-just-syntax",
+        "github.vscode-github-actions",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/workspaces/parlora/.venv/bin/python",
+        "editor.formatOnSave": true,
+        "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" }
+      }
+    }
+  }
+}

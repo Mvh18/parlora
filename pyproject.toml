@@ -1,0 +1,94 @@
+[project]
+name = "parlora-workspace"
+version = "0.1.0"
+description = "Workspace root for Parlora: shared tooling and repository checks."
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "import-linter>=2.5",
+    "mypy>=1.18",
+    "pre-commit>=4.3",
+    "pytest>=8.4",
+    "pytest-cov>=7.0",
+    "pyyaml>=6.0",
+    "ruff>=0.17",
+    # The `just` binary from PyPI, so CI and contributors outside the Dev
+    # Container run the same recipes with `uv run just <recipe>`.
+    "rust-just>=1.58",
+    "types-pyyaml>=6.0",
+]
+
+[tool.uv]
+# The root only carries tooling; packages live in the workspace members.
+package = false
+# Supply-chain delay: ignore releases younger than a week (pnpm does the same
+# through minimumReleaseAge).
+exclude-newer = "7 days"
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/*"]
+exclude = ["apps/web"]
+
+# ── ruff ────────────────────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [".devcontainer"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+    "N",       # pep8-naming
+    "UP",      # pyupgrade
+    "B",       # bugbear
+    "C4",      # comprehensions
+    "SIM",     # simplify
+    "PT",      # pytest style
+    "S",       # bandit (security)
+    "RUF",     # ruff-specific
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, and repository checks call git with fixed arguments.
+"tests/**" = ["S101", "S603", "S607"]
+"**/tests/**" = ["S101"]
+
+# ── mypy ────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+files = ["tests"]
+
+# ── pytest ──────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+minversion = "8.4"
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--strict-config", "-ra"]
+xfail_strict = true
+markers = [
+    "unit: fast, isolated tests",
+    "integration: tests that need real services (Docker, PostgreSQL)",
+    "contract: API contract checks (OpenAPI, generated clients)",
+    "gpu: tests that need an NVIDIA GPU; excluded in CI",
+    "slow: tests that take more than a few seconds",
+]
+
+# ── coverage ────────────────────────────────────────────────────────────────
+# Per-package thresholds are set by the test recipes of each package.
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
+
+# ── import-linter ───────────────────────────────────────────────────────────
+# Contracts for parlora_core purity are added together with the package
+# (domain core work); import-linter refuses to run without a root package.

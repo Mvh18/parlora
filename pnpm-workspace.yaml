@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+
+# Supply-chain delay: do not install versions published less than 7 days ago
+# (in minutes). uv applies the same rule to Python packages.
+minimumReleaseAge: 10080
+
+# Install scripts are blocked unless a package is reviewed and listed here
+# (`package-name: true`); an unreviewed script fails the install.
+allowBuilds: {}
+strictDepBuilds: true

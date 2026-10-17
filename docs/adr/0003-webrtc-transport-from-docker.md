@@ -26,15 +26,15 @@ natively.
 
 ## Setup
 
-| Item | Value |
-|---|---|
-| Host | Windows 11 Pro, Docker Desktop (engine 28.2.2, WSL2 backend), network profile *Private* |
-| Image | `ghcr.io/astral-sh/uv:python3.12-bookworm-slim`, non-root user |
-| Packages | pipecat-ai 0.0.108 (`webrtc` extra), aiortc 1.15.0, aioice 0.10.2 |
-| Bot | `transport.input() → echo → transport.output()` at 16 kHz; no speech-to-text, LLM or text-to-speech |
-| Desktop client | Chrome 155, headless, fake media device; a 1 kHz tone generated with WebAudio |
-| Phone client | iPhone, Chrome for iOS (WebKit engine), same Wi-Fi network |
-| Signalling | Plain HTTP `POST /api/offer` (non-trickle ICE), no STUN or TURN servers |
+| Item           | Value                                                                                               |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| Host           | Windows 11 Pro, Docker Desktop (engine 28.2.2, WSL2 backend), network profile _Private_             |
+| Image          | `ghcr.io/astral-sh/uv:python3.12-bookworm-slim`, non-root user                                      |
+| Packages       | pipecat-ai 0.0.108 (`webrtc` extra), aiortc 1.15.0, aioice 0.10.2                                   |
+| Bot            | `transport.input() → echo → transport.output()` at 16 kHz; no speech-to-text, LLM or text-to-speech |
+| Desktop client | Chrome 155, headless, fake media device; a 1 kHz tone generated with WebAudio                       |
+| Phone client   | iPhone, Chrome for iOS (WebKit engine), same Wi-Fi network                                          |
+| Signalling     | Plain HTTP `POST /api/offer` (non-trickle ICE), no STUN or TURN servers                             |
 
 The test page sends short tones and measures how long each takes to come back
 (end-to-end echo latency). It also reads `getStats()` (selected candidate pair,
@@ -54,7 +54,7 @@ It works because of how ICE runs, not because of a port mapping:
   reach.
 - The browser's offer lists the host's real interface addresses, including
   the Hyper-V/WSL virtual adapter.
-- The container sends its ICE checks *out* to those addresses through Docker's
+- The container sends its ICE checks _out_ to those addresses through Docker's
   NAT. The browser learns the container as a peer-reflexive candidate, and the
   pair succeeds.
 
@@ -69,12 +69,12 @@ for the microphone, but it **must do so before creating the WebRTC offer**.
 
 ### 2. Which setup works
 
-| Setup | Result |
-|---|---|
-| Default bridge, no UDP published | ✅ Works on the desktop through container-initiated checks (above). Nothing is exposed. |
-| Fixed UDP range published on `127.0.0.1`, candidate rewritten to `127.0.0.1` | ⚠️ Connects, but only through the path above. On its own (browser-initiated only) ICE **fails**: Chrome does not complete checks against a loopback candidate. |
-| Fixed UDP range published on the host's LAN address, candidate rewritten to that address | ✅ Works on its own, including browser-initiated only. |
-| Docker Desktop host networking (`--network host`) | ❌ Not usable by default. The container gets the Docker VM's network, and not even its HTTP port is reachable from Windows unless host networking is turned on in Docker Desktop settings. Not pursued. |
+| Setup                                                                                    | Result                                                                                                                                                                                                  |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Default bridge, no UDP published                                                         | ✅ Works on the desktop through container-initiated checks (above). Nothing is exposed.                                                                                                                 |
+| Fixed UDP range published on `127.0.0.1`, candidate rewritten to `127.0.0.1`             | ⚠️ Connects, but only through the path above. On its own (browser-initiated only) ICE **fails**: Chrome does not complete checks against a loopback candidate.                                          |
+| Fixed UDP range published on the host's LAN address, candidate rewritten to that address | ✅ Works on its own, including browser-initiated only.                                                                                                                                                  |
+| Docker Desktop host networking (`--network host`)                                        | ❌ Not usable by default. The container gets the Docker VM's network, and not even its HTTP port is reachable from Windows unless host networking is turned on in Docker Desktop settings. Not pursued. |
 
 Two limits in the current libraries:
 
@@ -90,14 +90,14 @@ Two limits in the current libraries:
 
 ### 3. Latency
 
-| Session | Connect | ICE round trip | Echo latency, median (range) | Loss |
-|---|---|---|---|---|
-| Desktop, bridge, 8 tones | 533 ms | 1 ms | 490 ms (372–518) | 0 |
-| Desktop, bridge, 25 tones | 266 ms | 2 ms | 508 ms (416–567) | 0 |
-| Desktop, bridge, 8 tones | 295 ms | 2 ms | 276 ms | 0 |
-| Desktop, fixed range (3 sessions, 15 tones) | 282–288 ms | 2 ms | 268–321 ms | 0 |
-| Desktop, LAN address only (2 sessions, 10 tones) | 220–233 ms | 2–3 ms | 255–291 ms | 0 |
-| Phone over Wi-Fi, LAN address | 1,252 ms | 5 ms | 304 ms (264–395) | 0 |
+| Session                                          | Connect    | ICE round trip | Echo latency, median (range) | Loss |
+| ------------------------------------------------ | ---------- | -------------- | ---------------------------- | ---- |
+| Desktop, bridge, 8 tones                         | 533 ms     | 1 ms           | 490 ms (372–518)             | 0    |
+| Desktop, bridge, 25 tones                        | 266 ms     | 2 ms           | 508 ms (416–567)             | 0    |
+| Desktop, bridge, 8 tones                         | 295 ms     | 2 ms           | 276 ms                       | 0    |
+| Desktop, fixed range (3 sessions, 15 tones)      | 282–288 ms | 2 ms           | 268–321 ms                   | 0    |
+| Desktop, LAN address only (2 sessions, 10 tones) | 220–233 ms | 2–3 ms         | 255–291 ms                   | 0    |
+| Phone over Wi-Fi, LAN address                    | 1,252 ms   | 5 ms           | 304 ms (264–395)             | 0    |
 
 - The network path through Docker adds very little: ICE round trips are
   1–3 ms on the desktop and 5 ms from the phone, with no packet loss.
@@ -123,10 +123,10 @@ things, and each is an exposure the project must make opt-in:
    container-initiated path from finding 1 cannot work. The browser must
    start the checks against a reachable published address.
 2. **A Windows firewall rule.** Docker Desktop's own allow rules for
-   `com.docker.backend` covered only the *Public* profile. On a *Private*
+   `com.docker.backend` covered only the _Public_ profile. On a _Private_
    network, inbound LAN traffic to published ports was blocked until a rule
    was added for TCP (HTTP) and the UDP range, scoped to `LocalSubnet` and
-   the *Private* profile. The rule was removed after the test.
+   the _Private_ profile. The rule was removed after the test.
 3. **HTTPS for the microphone.** Over plain HTTP on a LAN address the page is
    not a secure context, so browsers do not expose `getUserMedia`. The spike
    used a generated tone instead. Real use from a phone needs HTTPS
@@ -146,10 +146,10 @@ fallback is not needed.
     (or an upstream option, if one appears);
   - that range published on the host's LAN address and advertised as the
     candidate;
-  - a firewall rule scoped to the local subnet and *Private* profile;
+  - a firewall rule scoped to the local subnet and _Private_ profile;
   - HTTPS.
-  This is off by default; nothing listens on the LAN unless the user turns it
-  on.
+    This is off by default; nothing listens on the LAN unless the user turns it
+    on.
 - **Image:** replace `opencv-python` with `opencv-python-headless` (or drop
   OpenCV if a later Pipecat version stops importing it for audio-only use).
 

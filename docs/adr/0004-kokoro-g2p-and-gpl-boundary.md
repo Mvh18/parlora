@@ -32,22 +32,22 @@ dependency-review licence policy and the third-party notice.
 
 ## Setup
 
-| Item | Value |
-|---|---|
-| Model | Kokoro v1.0 ONNX (`kokoro-v1.0.onnx`, `voices-v1.0.bin`), voice `af_heart`, speed 1.0, CPU |
-| Packages | pipecat-ai 0.0.108, kokoro-onnx 0.6.1, misaki 0.9.4, spaCy 3.8 + `en_core_web_sm` 3.8.0, onnxruntime 1.23 |
-| Sentences | 30 English sentences, 250 words, with names from many languages, slang, brand names, acronyms, accented words and four deliberate typos |
-| Round trip | faster-whisper `large-v3-turbo` int8 on GPU (setup from ADR 0002); text normalised, typos scored against the intended word |
-| By ear | 5 name-heavy sentences in every mode, judged by the maintainer |
+| Item       | Value                                                                                                                                   |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Model      | Kokoro v1.0 ONNX (`kokoro-v1.0.onnx`, `voices-v1.0.bin`), voice `af_heart`, speed 1.0, CPU                                              |
+| Packages   | pipecat-ai 0.0.108, kokoro-onnx 0.6.1, misaki 0.9.4, spaCy 3.8 + `en_core_web_sm` 3.8.0, onnxruntime 1.23                               |
+| Sentences  | 30 English sentences, 250 words, with names from many languages, slang, brand names, acronyms, accented words and four deliberate typos |
+| Round trip | faster-whisper `large-v3-turbo` int8 on GPU (setup from ADR 0002); text normalised, typos scored against the intended word              |
+| By ear     | 5 name-heavy sentences in every mode, judged by the maintainer                                                                          |
 
 Four G2P modes were compared:
 
-| Mode | G2P | GPL code in the Parlora process |
-|---|---|---|
-| `espeak` | kokoro-onnx as Pipecat uses it: espeak-ng for every word | Yes |
-| `silent` | misaki dictionary only; OOV words dropped | No |
-| `subword` | misaki dictionary; OOV words built from dictionary pieces, else spelled letter by letter | No |
-| `cli` | misaki dictionary; OOV words sent to a separately installed `espeak-ng` executable as a subprocess | No |
+| Mode      | G2P                                                                                                | GPL code in the Parlora process |
+| --------- | -------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `espeak`  | kokoro-onnx as Pipecat uses it: espeak-ng for every word                                           | Yes                             |
+| `silent`  | misaki dictionary only; OOV words dropped                                                          | No                              |
+| `subword` | misaki dictionary; OOV words built from dictionary pieces, else spelled letter by letter           | No                              |
+| `cli`     | misaki dictionary; OOV words sent to a separately installed `espeak-ng` executable as a subprocess | No                              |
 
 Generated audio stayed local and was not committed. The spike code stayed on a
 throwaway branch.
@@ -88,12 +88,12 @@ Instagram were in the dictionary.
 
 Whisper round trip, all 30 sentences:
 
-| Mode | WER | OOV words recognised | Sentences transcribed exactly |
-|---|---|---|---|
-| `espeak` | 12.0 % | 19 / 28 | 15 / 30 |
-| `silent` | 14.8 % | 0 / 28 | 10 / 30 |
-| `subword` | 19.2 % | 7 / 28 | 12 / 30 |
-| **`cli`** | **5.6 %** | **20 / 28** | **20 / 30** |
+| Mode      | WER       | OOV words recognised | Sentences transcribed exactly |
+| --------- | --------- | -------------------- | ----------------------------- |
+| `espeak`  | 12.0 %    | 19 / 28              | 15 / 30                       |
+| `silent`  | 14.8 %    | 0 / 28               | 10 / 30                       |
+| `subword` | 19.2 %    | 7 / 28               | 12 / 30                       |
+| **`cli`** | **5.6 %** | **20 / 28**          | **20 / 30**                   |
 
 Excluding the two typo sentences, which the tutor's own generated text should
 rarely contain, the ranking is the same (`espeak` 10.9 %, `silent` 13.0 %,
@@ -117,15 +117,15 @@ trailing silence as kokoro-onnx does; the production runner should.
 
 ### 4. Licences in the dependency tree
 
-| Package | Licence | Pulled in by |
-|---|---|---|
-| `phonemizer` | GPL-3.0-or-later | `pipecat-ai[kokoro]` (via kokoro-onnx) |
-| `espeakng-loader` (bundles espeak-ng) | metadata `UNKNOWN`; bundled library GPL-3.0 | `pipecat-ai[kokoro]` |
-| `phonemizer-fork`, `espeakng-loader` | GPL-3.0 | `misaki[en]`, `kokoro` |
-| `soxr` | LGPL-2.1-or-later | `pipecat-ai` itself (all installs) |
-| `num2words` | LGPL | misaki's English G2P |
-| `certifi`, `tqdm` | MPL-2.0 (tqdm: MPL-2.0 AND MIT) | common transitive dependencies |
-| `kokoro-onnx` | MIT (metadata `UNKNOWN`) | `pipecat-ai[kokoro]` |
+| Package                               | Licence                                     | Pulled in by                           |
+| ------------------------------------- | ------------------------------------------- | -------------------------------------- |
+| `phonemizer`                          | GPL-3.0-or-later                            | `pipecat-ai[kokoro]` (via kokoro-onnx) |
+| `espeakng-loader` (bundles espeak-ng) | metadata `UNKNOWN`; bundled library GPL-3.0 | `pipecat-ai[kokoro]`                   |
+| `phonemizer-fork`, `espeakng-loader`  | GPL-3.0                                     | `misaki[en]`, `kokoro`                 |
+| `soxr`                                | LGPL-2.1-or-later                           | `pipecat-ai` itself (all installs)     |
+| `num2words`                           | LGPL                                        | misaki's English G2P                   |
+| `certifi`, `tqdm`                     | MPL-2.0 (tqdm: MPL-2.0 AND MIT)             | common transitive dependencies         |
+| `kokoro-onnx`                         | MIT (metadata `UNKNOWN`)                    | `pipecat-ai[kokoro]`                   |
 
 Everything else in both images was MIT, BSD, Apache-2.0, ISC or PSF.
 

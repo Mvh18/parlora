@@ -1,0 +1,18 @@
+{
+  "name": "parlora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workspace root for Parlora: shared JavaScript tooling.",
+  "license": "SEE LICENSE IN LICENSE",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  }
+}
