@@ -27,16 +27,16 @@ so it had to be checked on real hardware first.
 
 ## Setup
 
-| Item | Value |
-|---|---|
-| Host | Windows 11 Pro, RTX 4060 8 GB, NVIDIA driver 616.56, 16 GB RAM |
-| Docker | Docker Desktop, engine 28.2.2, WSL2 backend |
-| Base image | `ghcr.io/astral-sh/uv:python3.12-bookworm-slim` (= `python:3.12-slim` + uv) |
-| Packages | faster-whisper 1.2.1, ctranslate2 4.8.3, nvidia-cublas-cu12 12.9.2.10, nvidia-cudnn-cu12 9.27.0.42 (pulls nvidia-cuda-nvrtc-cu12 12.9.86) |
-| Model | `large-v3-turbo`, `compute_type="int8"`, `device="cuda"`, beam size 5 |
-| Audio | 11.35 s of synthetic speech (Windows SAPI voice, 16 kHz mono); no real voice used, nothing committed |
-| Model cache | Named Docker volume mounted as `HF_HOME` |
-| User | Non-root (uid 10001) |
+| Item        | Value                                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Host        | Windows 11 Pro, RTX 4060 8 GB, NVIDIA driver 616.56, 16 GB RAM                                                                            |
+| Docker      | Docker Desktop, engine 28.2.2, WSL2 backend                                                                                               |
+| Base image  | `ghcr.io/astral-sh/uv:python3.12-bookworm-slim` (= `python:3.12-slim` + uv)                                                               |
+| Packages    | faster-whisper 1.2.1, ctranslate2 4.8.3, nvidia-cublas-cu12 12.9.2.10, nvidia-cudnn-cu12 9.27.0.42 (pulls nvidia-cuda-nvrtc-cu12 12.9.86) |
+| Model       | `large-v3-turbo`, `compute_type="int8"`, `device="cuda"`, beam size 5                                                                     |
+| Audio       | 11.35 s of synthetic speech (Windows SAPI voice, 16 kHz mono); no real voice used, nothing committed                                      |
+| Model cache | Named Docker volume mounted as `HF_HOME`                                                                                                  |
+| User        | Non-root (uid 10001)                                                                                                                      |
 
 The spike code (Dockerfile, measurement script, Compose file) stayed on a
 throwaway branch and is not merged.
@@ -70,14 +70,14 @@ throwaway branch and is not merged.
 
 Two container runs, model already cached, 5 warm runs each:
 
-| Metric | Run 1 | Run 2 |
-|---|---|---|
-| VRAM after model load (delta) | 1,079 MiB | 1,085 MiB |
+| Metric                               | Run 1     | Run 2     |
+| ------------------------------------ | --------- | --------- |
+| VRAM after model load (delta)        | 1,079 MiB | 1,085 MiB |
 | VRAM peak while transcribing (delta) | 1,161 MiB | 1,167 MiB |
-| First transcription (warm-up) | 2.53 s | 1.61 s |
-| Warm transcription, median of 5 | 0.805 s | 0.747 s |
-| Real-time factor (median) | 0.071 | 0.066 |
-| Word error rate vs script | 0.0 | 0.0 |
+| First transcription (warm-up)        | 2.53 s    | 1.61 s    |
+| Warm transcription, median of 5      | 0.805 s   | 0.747 s   |
+| Real-time factor (median)            | 0.071     | 0.066     |
+| Word error rate vs script            | 0.0       | 0.0       |
 
 Speech-to-text needs about 1.2 GB of the 8 GB VRAM, which leaves room for the
 LLM and TTS.
@@ -90,17 +90,17 @@ be small, but this is unverified. The comparison moves to the follow-up change
 
 ### 4. Image size and cold start
 
-| Metric | Value |
-|---|---|
-| Compressed image (registry/pull size) | 1.66 GB |
-| `site-packages` in the image | 2.6 GB, of which cuDNN 1.2 GB, cuBLAS 0.8 GB, NVRTC 0.2 GB |
-| Size shown by Docker Desktop (compressed + unpacked) | 4.65 GB |
-| First build, base image not cached | 271 s |
-| Model download (first run, `large-v3-turbo`) | one-off, into the named volume |
-| Cold start, `docker run` until the result is printed (model cached) | 15.5–19.1 s |
-| — Python imports | 1.1 s |
-| — Model load to GPU | 7.0–8.4 s |
-| — First transcription (CUDA warm-up) | 1.6–2.5 s |
+| Metric                                                              | Value                                                      |
+| ------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Compressed image (registry/pull size)                               | 1.66 GB                                                    |
+| `site-packages` in the image                                        | 2.6 GB, of which cuDNN 1.2 GB, cuBLAS 0.8 GB, NVRTC 0.2 GB |
+| Size shown by Docker Desktop (compressed + unpacked)                | 4.65 GB                                                    |
+| First build, base image not cached                                  | 271 s                                                      |
+| Model download (first run, `large-v3-turbo`)                        | one-off, into the named volume                             |
+| Cold start, `docker run` until the result is printed (model cached) | 15.5–19.1 s                                                |
+| — Python imports                                                    | 1.1 s                                                      |
+| — Model load to GPU                                                 | 7.0–8.4 s                                                  |
+| — First transcription (CUDA warm-up)                                | 1.6–2.5 s                                                  |
 
 The CUDA wheels make up about 80 % of the image. The model weights are not in
 the image; they live in a volume.
