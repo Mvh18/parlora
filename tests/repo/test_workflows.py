@@ -1,0 +1,59 @@
+"""GitHub Actions workflows are hardened: explicit permissions, pinned actions."""
+
+import re
+from pathlib import Path
+from typing import Any
+
+import pytest
+import yaml
+
+pytestmark = pytest.mark.unit
+
+SHA_PINNED = re.compile(r"^[\w.-]+/[\w./-]+@[0-9a-f]{40}$")
+
+
+def workflow_files(repo_root: Path) -> list[Path]:
+    return sorted((repo_root / ".github" / "workflows").glob("*.y*ml"))
+
+
+def load(path: Path) -> dict[str, Any]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert isinstance(data, dict), f"{path.name} is not a mapping"
+    return data
+
+
+def steps(workflow: dict[str, Any]) -> list[dict[str, Any]]:
+    return [step for job in workflow.get("jobs", {}).values() for step in job.get("steps", [])]
+
+
+def test_workflows_exist(repo_root: Path) -> None:
+    assert workflow_files(repo_root), "no workflows found"
+
+
+def test_every_workflow_declares_top_level_permissions(repo_root: Path) -> None:
+    missing = [p.name for p in workflow_files(repo_root) if "permissions" not in load(p)]
+    assert not missing, f"workflows without top-level permissions: {missing}"
+
+
+def test_third_party_actions_are_pinned_to_a_commit_sha(repo_root: Path) -> None:
+    unpinned = []
+    for path in workflow_files(repo_root):
+        workflow = load(path)
+        uses = [s["uses"] for s in steps(workflow) if "uses" in s]
+        uses += [j["uses"] for j in workflow.get("jobs", {}).values() if "uses" in j]
+        for ref in uses:
+            if ref.startswith(("./", "docker://")):
+                continue
+            if not SHA_PINNED.match(ref):
+                unpinned.append(f"{path.name}: {ref}")
+    assert not unpinned, f"actions not pinned to a full SHA: {unpinned}"
+
+
+def test_checkout_does_not_persist_credentials(repo_root: Path) -> None:
+    offenders = []
+    for path in workflow_files(repo_root):
+        for step in steps(load(path)):
+            is_checkout = str(step.get("uses", "")).startswith("actions/checkout@")
+            if is_checkout and step.get("with", {}).get("persist-credentials") is not False:
+                offenders.append(path.name)
+    assert not offenders, f"checkout without persist-credentials: false in {offenders}"
