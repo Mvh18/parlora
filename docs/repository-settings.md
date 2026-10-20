@@ -11,6 +11,12 @@ REPO=Mvh18/parlora
 
 ## Security and analysis
 
+**Dependency graph** must be enabled first: the `dependency review` job in
+`security.yml` fails with "Dependency review is not supported on this
+repository" without it, and Dependabot alerts depend on it. Enable it in
+Settings → Code security → **Dependency graph** (there is no REST endpoint for
+this toggle).
+
 Secret scanning with push protection, Dependabot alerts and security updates,
 and private vulnerability reporting (the channel `SECURITY.md` points to):
 
