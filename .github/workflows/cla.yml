@@ -1,0 +1,89 @@
+name: CLA
+
+# Contributor licence agreement check (CLA.md). A contributor accepts by
+# commenting the exact phrase below on their pull request; the acceptance is
+# the comment itself, kept by GitHub. The result is published as the `cla`
+# commit status on the pull request head.
+#
+# pull_request_target is required to comment and set statuses on pull
+# requests from forks. It is safe here because the job never checks out or
+# runs code from the pull request: it only reads event data and calls the API,
+# and untrusted values are read from the payload, never interpolated.
+on:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] no checkout, API calls only
+    types: [opened, reopened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  cla:
+    name: cla
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event.issue.pull_request && contains(github.event.comment.body, 'Parlora CLA'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write # the instructions comment
+      statuses: write # the `cla` commit status
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const PHRASE = 'I have read and accept the Parlora CLA';
+            const EXEMPT = ['Mvh18'];
+            const MARKER = '<!-- parlora-cla -->';
+            const { owner, repo } = context.repo;
+            const number = context.payload.pull_request?.number ?? context.payload.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: number });
+            const author = pr.user.login;
+            const claUrl = `https://github.com/${owner}/${repo}/blob/${pr.base.ref}/CLA.md`;
+
+            async function setStatus(state, description) {
+              await github.rest.repos.createCommitStatus({
+                owner, repo, sha: pr.head.sha, state, description, context: 'cla', target_url: claUrl,
+              });
+            }
+
+            if (EXEMPT.includes(author) || pr.user.type === 'Bot') {
+              try {
+                await setStatus('success', 'Exempt: maintainer or bot');
+              } catch (error) {
+                // Tokens of bot-triggered runs can be read-only; nothing to sign.
+                core.info(`Could not set the status for ${author}: ${error.message}`);
+              }
+              return;
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: number, per_page: 100,
+            });
+            const signed = comments.some(
+              (c) => c.user.login === author && c.body.trim().startsWith(PHRASE),
+            );
+
+            if (signed) {
+              await setStatus('success', `Accepted by @${author}`);
+              return;
+            }
+
+            await setStatus('failure', 'The CLA has not been accepted yet');
+            if (!comments.some((c) => c.body.includes(MARKER))) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: number,
+                body: [
+                  MARKER,
+                  `Thanks for your contribution, @${author}! Before it can be merged, please read the [Contributor Licence Agreement](${claUrl}).`,
+                  '',
+                  'To accept it, reply to this pull request with exactly:',
+                  '',
+                  '```text',
+                  PHRASE,
+                  '```',
+                  '',
+                  'You only need to do this once; it covers all your contributions.',
+                ].join('\n'),
+              });
+            }
