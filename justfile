@@ -74,9 +74,11 @@ openapi:
 gen-client:
     @echo 'gen-client: not available yet - the client arrives with the web shell work.'
 
-# Scan the working tree for secrets
+# Scan for secrets, audit workflows and check Python dependencies (ADR 0005)
 security:
     uv run pre-commit run gitleaks --all-files
+    uv run zizmor .
+    uv run python scripts/audit_python_deps.py
 
 # Run every gate CI runs (except jobs that need GitHub)
 check: lint typecheck test security

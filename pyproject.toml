@@ -10,6 +10,8 @@ dependencies = []
 dev = [
     "import-linter>=2.5",
     "mypy>=1.18",
+    "pip-audit>=2.9",
+    "pip-licenses>=5.0",
     "pre-commit>=4.3",
     "pytest>=8.4",
     "pytest-cov>=7.0",
@@ -19,6 +21,7 @@ dev = [
     # Container run the same recipes with `uv run just <recipe>`.
     "rust-just>=1.58",
     "types-pyyaml>=6.0",
+    "zizmor>=1.10",
 ]
 
 [tool.uv]
@@ -57,13 +60,15 @@ select = [
 # Tests assert, and repository checks call git with fixed arguments.
 "tests/**" = ["S101", "S603", "S607"]
 "**/tests/**" = ["S101"]
+# Dev scripts run tools with fixed arguments built in the script itself.
+"scripts/**" = ["S603"]
 
 # ── mypy ────────────────────────────────────────────────────────────────────
 [tool.mypy]
 python_version = "3.12"
 strict = true
 warn_unreachable = true
-files = ["tests"]
+files = ["tests", "scripts"]
 
 # ── pytest ──────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]

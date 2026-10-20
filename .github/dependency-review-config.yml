@@ -1,0 +1,37 @@
+# Dependency review on pull requests. Required for npm, Docker and Actions;
+# for Python the required gate is scripts/audit_python_deps.py, because
+# GitHub's support for uv.lock is unverified (ADR 0005). Licence policy:
+# ADR 0004 — no GPL or AGPL; MPL-2.0 allowed; LGPL only for reviewed packages.
+fail-on-severity: high
+fail-on-scopes: [runtime, development]
+comment-summary-in-pr: never
+
+allow-licenses:
+  - 0BSD
+  - Apache-2.0
+  - BlueOak-1.0.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - BSL-1.0
+  - CC-BY-4.0
+  - CC0-1.0
+  - ISC
+  - MIT
+  - MIT-0
+  - MPL-2.0
+  - PSF-2.0
+  - Python-2.0
+  - Unicode-3.0
+  - Unlicense
+  - Zlib
+
+# Reviewed LGPL exceptions (ADR 0004); keep in sync with the Python gate.
+allow-dependencies-licenses:
+  - pkg:pypi/soxr
+  - pkg:pypi/num2words
+
+# GPL grapheme-to-phoneme packages that must never enter the process.
+deny-packages:
+  - pkg:pypi/phonemizer
+  - pkg:pypi/phonemizer-fork
+  - pkg:pypi/espeakng-loader

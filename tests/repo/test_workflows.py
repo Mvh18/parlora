@@ -42,7 +42,8 @@ def test_third_party_actions_are_pinned_to_a_commit_sha(repo_root: Path) -> None
         uses = [s["uses"] for s in steps(workflow) if "uses" in s]
         uses += [j["uses"] for j in workflow.get("jobs", {}).values() if "uses" in j]
         for ref in uses:
-            if ref.startswith(("./", "docker://")):
+            # Same-repository references ($/ is GitHub's self-repository syntax).
+            if ref.startswith(("$/", "./", "docker://")):
                 continue
             if not SHA_PINNED.match(ref):
                 unpinned.append(f"{path.name}: {ref}")
