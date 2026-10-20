@@ -67,10 +67,17 @@ jobs:
           'uv --version && python --version && node --version && pnpm --version
           && just --version && gh --version && docker --version'
 
+  security:
+    name: security
+    uses: $/.github/workflows/security.yml
+    permissions:
+      contents: read
+      pull-requests: read
+
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [lint, repo, devcontainer]
+    needs: [lint, repo, devcontainer, security]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
