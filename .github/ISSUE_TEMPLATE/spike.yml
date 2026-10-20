@@ -1,0 +1,34 @@
+name: Spike / investigation
+description: Time-boxed technical investigation to reduce uncertainty before committing to an approach.
+title: "[Spike] "
+labels: [type/spike]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What is uncertain, and which decision is blocked until it is answered.
+    validations:
+      required: true
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions to answer
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      placeholder: e.g. 1 day
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Deliverable
+      description: Usually an ADR in docs/adr/. Spike code is thrown away; only the ADR is merged.
+    validations:
+      required: true

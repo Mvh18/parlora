@@ -1,0 +1,38 @@
+name: Chore / maintenance
+description: Internal technical work with no direct user value — dependencies, infra, CI/CD, refactors, cleanup.
+title: "[Chore] "
+labels: [type/chore]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: The change, concretely.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why now
+      description: The risk, cost or blocker this removes.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Files, packages or services touched, and what is explicitly not touched.
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of done
+      value: |
+        - [ ] CI is green
+        - [ ] No new lint warnings
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk / rollback
+      description: What could break and how to undo it.

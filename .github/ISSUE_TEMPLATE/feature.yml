@@ -1,0 +1,58 @@
+name: Feature / user story
+description: A new capability or a user-visible improvement, framed as the value it delivers.
+title: "[Feat] "
+labels: [type/feature, status/needs-triage]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      description: The role is whoever acts, not "the system". If you cannot name a beneficiary, this is probably a chore.
+      value: |
+        **As a** <role>,
+        **I want** <capability>,
+        **so that** <benefit>.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Current state, why this is needed now, the flow it fits into and the parts of the system it touches.
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Business value
+      description: One or two sentences on what becomes possible or measurably better.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: At least the happy path and one edge or alternative case. Observable outcomes only.
+      render: gherkin
+      value: |
+        Scenario: <happy path>
+          Given <precondition>
+          When <action>
+          Then <observable outcome>
+
+        Scenario: <edge or alternative case>
+          Given <precondition>
+          When <action>
+          Then <observable outcome>
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this deliberately does not cover, and where it will be covered.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Designs, related ADRs, upstream documentation.

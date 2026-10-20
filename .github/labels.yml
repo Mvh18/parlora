@@ -1,0 +1,118 @@
+# Labels as code, synced by .github/workflows/labels.yml. Labels not listed
+# here (for example the ones Dependabot and release-please add) are kept.
+
+# type — carries the issue type (personal repositories have no native types)
+- name: type/epic
+  color: "3E4B9E"
+  description: Spec-sized outcome split into sub-issues
+- name: type/feature
+  color: "1D76DB"
+  description: New user- or integrator-visible capability
+- name: type/bug
+  color: "D73A4A"
+  description: Behaviour that is incorrect or diverges from the spec
+- name: type/chore
+  color: "C5DEF5"
+  description: "Internal work: tooling, CI, infra, security"
+- name: type/spike
+  color: "FBCA04"
+  description: Time-boxed investigation
+- name: type/docs
+  color: "0075CA"
+  description: Documentation only
+
+# area
+- name: area/core
+  color: "BFD4F2"
+  description: Domain core package
+- name: area/server
+  color: "BFD4F2"
+  description: FastAPI server and voice pipeline
+- name: area/web
+  color: "BFD4F2"
+  description: Next.js web app
+- name: area/infra
+  color: "BFD4F2"
+  description: Docker and local runtime
+- name: area/ci
+  color: "BFD4F2"
+  description: GitHub Actions
+- name: area/security
+  color: "BFD4F2"
+  description: Security and supply chain
+- name: area/repo
+  color: "BFD4F2"
+  description: Repository tooling and governance
+- name: area/docs
+  color: "BFD4F2"
+  description: Documentation
+- name: area/integration
+  color: "BFD4F2"
+  description: Course-platform integration (API, webhooks, evaluations, spaced repetition)
+
+# phase — roadmap phase
+- name: phase/0
+  color: "5319E7"
+  description: Environment, skeleton and benchmarks
+- name: phase/1
+  color: "5319E7"
+  description: Minimal voice loop
+- name: phase/2
+  color: "5319E7"
+  description: Tutor behaviour
+- name: phase/3
+  color: "5319E7"
+  description: Parallel corrections
+- name: phase/4
+  color: "5319E7"
+  description: Own frontend
+- name: phase/5
+  color: "5319E7"
+  description: Persistence and session summary
+- name: phase/6
+  color: "5319E7"
+  description: Quality and optimisation
+- name: phase/7
+  color: "5319E7"
+  description: Course-platform integration
+- name: phase/8
+  color: "5319E7"
+  description: Extras
+
+# priority
+- name: priority/p0
+  color: "B60205"
+  description: Blocker
+- name: priority/p1
+  color: "D93F0B"
+  description: High
+- name: priority/p2
+  color: "FBCA04"
+  description: Medium
+- name: priority/p3
+  color: "0E8A16"
+  description: Nice to have
+
+# status
+- name: status/needs-triage
+  color: "EDEDED"
+  description: New, not reviewed yet
+- name: status/blocked
+  color: "EDEDED"
+  description: Waiting on something else
+- name: status/in-progress
+  color: "EDEDED"
+  description: Someone is working on it
+
+# community
+- name: good first issue
+  color: "7057FF"
+  description: Small, well-scoped and a good entry point
+- name: help wanted
+  color: "008672"
+  description: Contributions welcome
+
+# automation
+- name: dependencies
+  color: "0366D6"
+  description: Dependency update (Dependabot)

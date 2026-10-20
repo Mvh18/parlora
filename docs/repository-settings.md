@@ -98,6 +98,23 @@ gh api -X PUT "repos/$REPO/rulesets/$ID" --input .github/rulesets/main.json
 To disable it in an emergency: Settings → Rules → Rulesets → `main` →
 Enforcement status → Disabled.
 
+## Release and contribution workflows
+
+- **Release token.** A pull request opened with the default `GITHUB_TOKEN`
+  does not trigger other workflows, so the release PR would never get the
+  required `ci-ok` check. Create a fine-grained personal access token limited
+  to this repository with _Contents_ and _Pull requests_ read/write, and store
+  it as the `RELEASE_PLEASE_TOKEN` Actions secret
+  (`gh secret set RELEASE_PLEASE_TOKEN`). Without it, release-please still
+  works, but its PR needs CI started by hand (close and reopen it).
+- **Labels.** After `.github/labels.yml` first lands on `main`, the labels
+  workflow creates them; run it by hand with
+  `gh workflow run labels.yml` if needed.
+- **CLA.** `.github/workflows/cla.yml` publishes a `cla` commit status. It is
+  not a required check, because the runs of Dependabot pull requests cannot
+  always write statuses; do not merge an external pull request while `cla`
+  is failing.
+
 ## Account setting
 
 Enable **Block command line pushes that expose my email** in the
