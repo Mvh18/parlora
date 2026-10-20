@@ -1,0 +1,32 @@
+name: Release
+
+# Maintains the release PR (version bump + CHANGELOG.md) from Conventional
+# Commits on main, and tags the release when that PR is merged.
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # release commits and tags
+      pull-requests: write # the release PR
+      issues: write # release labels
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          # A PR opened with the default token does not trigger CI, so the
+          # required ci-ok check would never run on the release PR. A
+          # fine-grained token (docs/repository-settings.md) avoids that.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
