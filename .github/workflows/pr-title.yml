@@ -1,0 +1,39 @@
+name: PR title
+
+# Pull requests are squash-merged, so the title becomes the commit on main
+# and drives release-please. Validate it like any commit subject.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  title:
+    name: conventional title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            refactor
+            docs
+            test
+            build
+            ci
+            style
+            chore
+            revert
+          # Imperative, lowercase description: "add x", not "Added X".
+          subjectPattern: ^[a-z].*[^.]$
+          subjectPatternError: >-
+            The description "{subject}" in "{title}" must start with a lowercase
+            verb and must not end with a period, e.g. "docs: add spanish readme".
