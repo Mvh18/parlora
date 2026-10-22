@@ -56,9 +56,10 @@ test-core:
     uv run pytest packages/core/tests -m "not gpu" --cov=parlora_core --cov-report=term-missing --cov-report=json:build/coverage-core.json
     uv run python scripts/coverage_gate.py build/coverage-core.json --lines 95 --branches 95
 
-# Run the server tests with its coverage gate
+# Run the server tests (unit, integration with Docker, contract) with its coverage gate (85 %)
 test-server:
-    @echo 'test-server: nothing to run yet - apps/server arrives with the server API work.'
+    uv run pytest apps/server/tests -m "not gpu" --cov=parlora_server --cov-report=term-missing --cov-report=json:build/coverage-server.json
+    uv run python scripts/coverage_gate.py build/coverage-server.json --lines 85 --branches 85
 
 # Run the web unit tests with its coverage gate
 test-web:
@@ -70,7 +71,7 @@ e2e:
 
 # Export the OpenAPI contract to contracts/openapi.json
 openapi:
-    @echo 'openapi: not available yet - the API arrives with the server API work.'
+    uv run python scripts/export_openapi.py
 
 # Generate the TypeScript API client from the OpenAPI contract
 gen-client:

@@ -1,0 +1,357 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Parlora API",
+    "description": "Versioned HTTP API of Parlora, a local-first voice tutor. Every error is an RFC 9457 problem document (`application/problem+json`).",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/api/v1/health/live": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Liveness: the process is up",
+        "operationId": "health_live",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Liveness"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem document (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness: every dependency is usable",
+        "operationId": "health_ready",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Readiness"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A dependency is unavailable; `checks` says which.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem document (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/languages": {
+      "get": {
+        "tags": [
+          "catalogue"
+        ],
+        "summary": "Supported languages and their roles",
+        "operationId": "catalogue_languages",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem document (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cefr-levels": {
+      "get": {
+        "tags": [
+          "catalogue"
+        ],
+        "summary": "CEFR levels in order",
+        "operationId": "catalogue_cefr_levels",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CefrLevelList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Problem document (RFC 9457)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CefrBand": {
+        "type": "string",
+        "enum": [
+          "basic",
+          "independent",
+          "proficient"
+        ],
+        "title": "CefrBand",
+        "description": "The three CEFR bands, each grouping two levels."
+      },
+      "CefrLevelList": {
+        "properties": {
+          "levels": {
+            "items": {
+              "$ref": "#/components/schemas/CefrLevelOut"
+            },
+            "type": "array",
+            "title": "Levels",
+            "description": "From A1 (lowest) to C2 (highest)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "levels"
+        ],
+        "title": "CefrLevelList"
+      },
+      "CefrLevelOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "examples": [
+              "B1"
+            ]
+          },
+          "band": {
+            "$ref": "#/components/schemas/CefrBand"
+          },
+          "is_beginner": {
+            "type": "boolean",
+            "title": "Is Beginner",
+            "description": "A1 and A2: feedback may use the native language."
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "band",
+          "is_beginner"
+        ],
+        "title": "CefrLevelOut"
+      },
+      "LanguageList": {
+        "properties": {
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/LanguageOut"
+            },
+            "type": "array",
+            "title": "Languages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "languages"
+        ],
+        "title": "LanguageList"
+      },
+      "LanguageOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "ISO 639-1 code.",
+            "examples": [
+              "en"
+            ]
+          },
+          "english_name": {
+            "type": "string",
+            "title": "English Name"
+          },
+          "native_name": {
+            "type": "string",
+            "title": "Native Name"
+          },
+          "as_target": {
+            "type": "boolean",
+            "title": "As Target",
+            "description": "Can be practised in a session."
+          },
+          "as_feedback": {
+            "type": "boolean",
+            "title": "As Feedback",
+            "description": "Corrections can be explained in it."
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "english_name",
+          "native_name",
+          "as_target",
+          "as_feedback"
+        ],
+        "title": "LanguageOut"
+      },
+      "Liveness": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Version of the running server."
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version"
+        ],
+        "title": "Liveness"
+      },
+      "Readiness": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Checks",
+            "description": "State of each dependency, keyed by name. Today only `database`; clients must accept new keys and values.",
+            "examples": [
+              {
+                "database": "ok"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "Readiness"
+      },
+      "Problem": {
+        "additionalProperties": true,
+        "description": "An RFC 9457 problem document; extra members carry problem-specific data.",
+        "properties": {
+          "type": {
+            "default": "about:blank",
+            "description": "URI identifying the problem type.",
+            "title": "Type",
+            "type": "string"
+          },
+          "title": {
+            "description": "Short summary of the problem type.",
+            "title": "Title",
+            "type": "string"
+          },
+          "status": {
+            "description": "HTTP status code.",
+            "title": "Status",
+            "type": "integer"
+          },
+          "detail": {
+            "description": "Explanation specific to this occurrence.",
+            "title": "Detail",
+            "type": "string"
+          },
+          "instance": {
+            "description": "Path of the request that caused the problem.",
+            "title": "Instance",
+            "type": "string"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Request id to quote when reporting the error.",
+            "title": "Request Id"
+          }
+        },
+        "required": [
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "request_id"
+        ],
+        "title": "Problem",
+        "type": "object"
+      }
+    }
+  }
+}

@@ -12,6 +12,7 @@ from typing import Any
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.routing import APIRoute
 
 from parlora_core.languages import default_registry
 from parlora_server import __version__
@@ -48,6 +49,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url=f"{API_PREFIX}/openapi.json",
         docs_url=f"{API_PREFIX}/docs",
         redoc_url=None,
+        generate_unique_id_function=_operation_id,
         lifespan=lifespan,
     )
     app.state.settings = settings
@@ -99,3 +101,8 @@ def _openapi_with_problems(app: FastAPI) -> dict[str, Any]:
                 "content": {PROBLEM_JSON: {"schema": reference}},
             }
     return schema
+
+
+def _operation_id(route: APIRoute) -> str:
+    """Stable, readable ids for generated clients, e.g. `health_live`."""
+    return f"{route.tags[0]}_{route.name}" if route.tags else route.name

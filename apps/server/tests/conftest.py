@@ -19,7 +19,7 @@ UNREACHABLE_DATABASE_URL = "postgresql+asyncpg://parlora:parlora@127.0.0.1:1/par
 @pytest.fixture
 def clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Drop every PARLORA_ variable so the developer's environment cannot leak in."""
-    for name in os.environ:
+    for name in list(os.environ):
         if name.upper().startswith("PARLORA_"):
             monkeypatch.delenv(name)
 
