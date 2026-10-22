@@ -1,0 +1,14 @@
+[project]
+name = "parlora-core"
+version = "0.1.0"
+description = "Framework-free domain core for Parlora: languages, CEFR levels, learners and sessions."
+readme = "README.md"
+requires-python = "==3.12.*"
+license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
+# The core depends on the standard library only (design D5); a repository
+# invariant test keeps this list empty.
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
