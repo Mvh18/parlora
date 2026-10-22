@@ -13,6 +13,16 @@
           "type": "toml",
           "path": "uv.lock",
           "jsonpath": "$.package[?(@.name.value == 'parlora-workspace')].version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/core/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value == 'parlora-core')].version"
         }
       ]
     }

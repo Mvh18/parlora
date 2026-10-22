@@ -33,10 +33,11 @@ fmt:
     uv run ruff check --fix .
     pnpm exec prettier --write .
 
-# Lint and check formatting without changing files
+# Lint, check formatting and the import contracts without changing files
 lint:
     uv run ruff check .
     uv run ruff format --check .
+    uv run lint-imports
     pnpm exec prettier --check .
 
 # Type-check Python (mypy --strict)
@@ -50,9 +51,10 @@ test: test-repo test-core test-server test-web
 test-repo:
     uv run pytest tests/repo
 
-# Run the domain core tests with its coverage gate
+# Run the domain core tests with its coverage gate (95 % lines and branches)
 test-core:
-    @echo 'test-core: nothing to run yet - packages/core arrives with the domain core work.'
+    uv run pytest packages/core/tests -m "not gpu" --cov=parlora_core --cov-report=term-missing --cov-report=json:build/coverage-core.json
+    uv run python scripts/coverage_gate.py build/coverage-core.json --lines 95 --branches 95
 
 # Run the server tests with its coverage gate
 test-server:

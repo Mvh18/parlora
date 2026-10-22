@@ -8,6 +8,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.140",
     "import-linter>=2.5",
     "mypy>=1.18",
     "pip-audit>=2.9",
@@ -15,6 +16,8 @@ dev = [
     "pre-commit>=4.3",
     "pytest>=8.4",
     "pytest-cov>=7.0",
+    # Workspace members, installed editable so their suites run from the root.
+    "parlora-core",
     "pyyaml>=6.0",
     "ruff>=0.17",
     # The `just` binary from PyPI, so CI and contributors outside the Dev
@@ -39,11 +42,16 @@ exclude-newer-package = { certifi = "2026-10-21T00:00:00Z", virtualenv = "2026-1
 members = ["packages/*", "apps/*"]
 exclude = ["apps/web"]
 
+[tool.uv.sources]
+parlora-core = { workspace = true }
+
 # ── ruff ────────────────────────────────────────────────────────────────────
 [tool.ruff]
 target-version = "py312"
 line-length = 100
 extend-exclude = [".devcontainer"]
+# First-party import roots of the workspace members (src layout).
+src = [".", "packages/core/src"]
 
 [tool.ruff.lint]
 select = [
@@ -66,13 +74,15 @@ select = [
 "**/tests/**" = ["S101"]
 # Dev scripts run tools with fixed arguments built in the script itself.
 "scripts/**" = ["S603"]
+# Domain errors are named after the rule they enforce, as the domain-core spec does.
+"packages/core/src/parlora_core/errors.py" = ["N818"]
 
 # ── mypy ────────────────────────────────────────────────────────────────────
 [tool.mypy]
 python_version = "3.12"
 strict = true
 warn_unreachable = true
-files = ["tests", "scripts"]
+files = ["tests", "scripts", "packages/core/src", "packages/core/tests"]
 
 # ── pytest ──────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
@@ -99,5 +109,15 @@ skip_covered = true
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
 
 # ── import-linter ───────────────────────────────────────────────────────────
-# Contracts for parlora_core purity are added together with the package
-# (domain core work); import-linter refuses to run without a root package.
+# The domain core stays framework-free (design D5). `parlora_server` joins the
+# root packages, with its layer contract, when the server package lands.
+[tool.importlinter]
+root_packages = ["parlora_core"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "parlora_core is framework-free"
+type = "forbidden"
+source_modules = ["parlora_core"]
+forbidden_modules = ["fastapi", "starlette", "pydantic", "sqlalchemy", "pipecat", "parlora_server"]
+allow_indirect_imports = false
