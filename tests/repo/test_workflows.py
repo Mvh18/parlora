@@ -58,3 +58,18 @@ def test_checkout_does_not_persist_credentials(repo_root: Path) -> None:
             if is_checkout and step.get("with", {}).get("persist-credentials") is not False:
                 offenders.append(path.name)
     assert not offenders, f"checkout without persist-credentials: false in {offenders}"
+
+
+def test_ci_ok_aggregates_every_ci_job(repo_root: Path) -> None:
+    jobs = load(repo_root / ".github" / "workflows" / "ci.yml")["jobs"]
+    others = set(jobs) - {"ci-ok"}
+    assert set(jobs["ci-ok"]["needs"]) == others, "a CI job is missing from ci-ok"
+    assert jobs["ci-ok"]["if"] == "always()"
+
+
+@pytest.mark.parametrize("job", ["server", "contract"])
+def test_server_jobs_run_their_recipes(repo_root: Path, job: str) -> None:
+    jobs = load(repo_root / ".github" / "workflows" / "ci.yml")["jobs"]
+    commands = " ".join(step.get("run", "") for step in jobs[job]["steps"])
+    expected = {"server": "just test-server", "contract": "export_openapi.py --check"}
+    assert expected[job] in commands

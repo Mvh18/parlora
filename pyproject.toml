@@ -8,6 +8,8 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    # The HTTP client behind Starlette's TestClient (httpx is deprecated there).
+    "httpx2>=2.13.1",
     "hypothesis>=6.140",
     "import-linter>=2.5",
     "mypy>=1.18",
@@ -18,11 +20,14 @@ dev = [
     "pytest-cov>=7.0",
     # Workspace members, installed editable so their suites run from the root.
     "parlora-core",
+    "parlora-server",
     "pyyaml>=6.0",
     "ruff>=0.17",
     # The `just` binary from PyPI, so CI and contributors outside the Dev
     # Container run the same recipes with `uv run just <recipe>`.
     "rust-just>=1.58",
+    # PostgreSQL in throwaway containers for the server's integration tests.
+    "testcontainers[postgres]>=4.15.0",
     "types-pyyaml>=6.0",
     "zizmor>=1.10",
 ]
@@ -44,6 +49,7 @@ exclude = ["apps/web"]
 
 [tool.uv.sources]
 parlora-core = { workspace = true }
+parlora-server = { workspace = true }
 
 # ── ruff ────────────────────────────────────────────────────────────────────
 [tool.ruff]
@@ -51,7 +57,7 @@ target-version = "py312"
 line-length = 100
 extend-exclude = [".devcontainer"]
 # First-party import roots of the workspace members (src layout).
-src = [".", "packages/core/src"]
+src = [".", "packages/core/src", "apps/server/src"]
 
 [tool.ruff.lint]
 select = [
@@ -82,7 +88,17 @@ select = [
 python_version = "3.12"
 strict = true
 warn_unreachable = true
-files = ["tests", "scripts", "packages/core/src", "packages/core/tests"]
+# Typed `__init__` for pydantic models and settings (incl. `_env_file`).
+plugins = ["pydantic.mypy"]
+files = [
+    "tests",
+    "scripts",
+    "packages/core/src",
+    "packages/core/tests",
+    "apps/server/src",
+    "apps/server/tests",
+    "apps/server/alembic/env.py",
+]
 
 # ── pytest ──────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
@@ -109,10 +125,10 @@ skip_covered = true
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
 
 # ── import-linter ───────────────────────────────────────────────────────────
-# The domain core stays framework-free (design D5). `parlora_server` joins the
-# root packages, with its layer contract, when the server package lands.
+# The domain core stays framework-free (design D5), and the server is layered:
+# a layer may import the layers below it, never the ones above.
 [tool.importlinter]
-root_packages = ["parlora_core"]
+root_packages = ["parlora_core", "parlora_server"]
 include_external_packages = true
 
 [[tool.importlinter.contracts]]
@@ -121,3 +137,9 @@ type = "forbidden"
 source_modules = ["parlora_core"]
 forbidden_modules = ["fastapi", "starlette", "pydantic", "sqlalchemy", "pipecat", "parlora_server"]
 allow_indirect_imports = false
+
+[[tool.importlinter.contracts]]
+name = "parlora_server layers"
+type = "layers"
+containers = ["parlora_server"]
+layers = ["main", "api", "db", "config"]
