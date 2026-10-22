@@ -109,5 +109,15 @@ skip_covered = true
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
 
 # ── import-linter ───────────────────────────────────────────────────────────
-# Contracts for parlora_core purity are added together with the package
-# (domain core work); import-linter refuses to run without a root package.
+# The domain core stays framework-free (design D5). `parlora_server` joins the
+# root packages, with its layer contract, when the server package lands.
+[tool.importlinter]
+root_packages = ["parlora_core"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "parlora_core is framework-free"
+type = "forbidden"
+source_modules = ["parlora_core"]
+forbidden_modules = ["fastapi", "starlette", "pydantic", "sqlalchemy", "pipecat", "parlora_server"]
+allow_indirect_imports = false
