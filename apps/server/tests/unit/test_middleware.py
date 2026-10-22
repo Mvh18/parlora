@@ -26,10 +26,11 @@ def test_echoes_a_valid_inbound_request_id(client: TestClient) -> None:
 
 @pytest.mark.parametrize(
     "inbound",
-    ["a" * 500, "abc\tdef", "abc def", "id;drop", "ñandú".encode(), ""],
+    ["a" * 500, "abc\tdef", "abc def", "id;drop", "ñandú", ""],
 )
-def test_replaces_an_invalid_inbound_request_id(client: TestClient, inbound: str | bytes) -> None:
-    response = client.get("/api/v1/health/live", headers={"X-Request-ID": inbound})
+def test_replaces_an_invalid_inbound_request_id(client: TestClient, inbound: str) -> None:
+    # Raw bytes, so non-ASCII values reach the server as a client could send them.
+    response = client.get("/api/v1/health/live", headers={b"X-Request-ID": inbound.encode()})
 
     assert uuid.UUID(response.headers["x-request-id"])
 

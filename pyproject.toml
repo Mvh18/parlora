@@ -8,7 +8,8 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
+    # The HTTP client behind Starlette's TestClient (httpx is deprecated there).
+    "httpx2>=2.13.1",
     "hypothesis>=6.140",
     "import-linter>=2.5",
     "mypy>=1.18",
