@@ -1,0 +1,23 @@
+[project]
+name = "parlora-server"
+version = "0.2.0"
+description = "Parlora server: the versioned HTTP API (FastAPI) in front of the domain core."
+readme = "README.md"
+requires-python = "==3.12.*"
+license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
+dependencies = [
+    "alembic>=1.20.0",
+    "asyncpg>=0.32.0",
+    "fastapi>=0.143.2",
+    "parlora-core",
+    "pydantic-settings>=2.16.0",
+    "sqlalchemy[asyncio]>=2.1.4",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+parlora-core = { workspace = true }
