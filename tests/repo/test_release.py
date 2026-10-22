@@ -130,6 +130,26 @@ def test_release_please_bumps_every_manifest(repo_root: Path) -> None:
     assert manifests | {"uv.lock"} <= bumped
 
 
+def test_release_please_bumps_every_local_package_in_the_lockfile(repo_root: Path) -> None:
+    # release-please parses TOML into tagged values ({start, end, value}) so it
+    # can rewrite them in place; a filter must compare `@.name.value`, because
+    # `@.name == '...'` never matches and the file is silently skipped.
+    config = json.loads((repo_root / "release-please-config.json").read_text("utf-8"))
+    lock_paths = {
+        entry["jsonpath"]
+        for entry in config["packages"]["."]["extra-files"]
+        if entry["path"] == "uv.lock"
+    }
+    lock = tomllib.loads((repo_root / "uv.lock").read_text(encoding="utf-8"))
+    local = [
+        package["name"]
+        for package in lock["package"]
+        if "virtual" in package["source"] or "editable" in package["source"]
+    ]
+    expected = {f"$.package[?(@.name.value == '{name}')].version" for name in local}
+    assert lock_paths == expected
+
+
 # ── Community ───────────────────────────────────────────────────────────────
 
 
