@@ -22,10 +22,10 @@
   "containerEnv": {
     "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal"
   },
-  "forwardPorts": [3000, 8000],
+  "forwardPorts": [3000, 8700],
   "portsAttributes": {
     "3000": { "label": "web" },
-    "8000": { "label": "server" }
+    "8700": { "label": "server" }
   },
   "postCreateCommand": "just setup",
   "customizations": {

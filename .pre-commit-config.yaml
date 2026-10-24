@@ -20,6 +20,8 @@ repos:
       - id: check-yaml
         # pnpm 12 writes the lockfile as a multi-document stream
         args: [--allow-multiple-documents]
+        # Compose tags such as !reset; `docker compose config` validates these (tests/repo)
+        exclude: ^compose\.\w+\.yaml$
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: trailing-whitespace

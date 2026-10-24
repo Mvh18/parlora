@@ -15,17 +15,18 @@ setup:
     pnpm install --frozen-lockfile
     uv run pre-commit install --install-hooks
 
-# Start the local stack and the web dev server
-dev:
-    @echo 'dev: not available yet - the Compose stack and the web app arrive with the local runtime and web shell work.'
+# Start the stack with the server reloading on code changes; `just dev nogpu` without an NVIDIA GPU
+dev mode="gpu":
+    @echo 'dev: server on http://127.0.0.1:8700 (reloads on change); run the web app with `pnpm dev` in a second terminal.'
+    docker compose -f compose.yaml -f compose.dev.yaml {{ if mode == "nogpu" { "-f compose.nogpu.yaml" } else if mode == "gpu" { "" } else { error("mode must be gpu or nogpu") } }} up --build
 
-# Start the Compose stack (PostgreSQL + server)
-up:
-    @echo 'up: not available yet - compose.yaml arrives with the local runtime work.'
+# Start the Compose stack (PostgreSQL + server) and wait until healthy; `just up nogpu` without an NVIDIA GPU
+up mode="gpu":
+    docker compose -f compose.yaml {{ if mode == "nogpu" { "-f compose.nogpu.yaml" } else if mode == "gpu" { "" } else { error("mode must be gpu or nogpu") } }} up --detach --build --wait
 
-# Stop the Compose stack
+# Stop the Compose stack (data volumes are kept)
 down:
-    @echo 'down: not available yet - compose.yaml arrives with the local runtime work.'
+    docker compose --profile '*' down
 
 # Format Python and everything Prettier handles
 fmt:
