@@ -1,0 +1,14 @@
+# Allow-list: the build context holds only what the server image needs, so
+# .env files, virtualenvs, recordings and model weights can never leak into it.
+*
+!pyproject.toml
+!uv.lock
+!packages/core/
+!apps/server/
+
+**/__pycache__/
+**/*.py[cod]
+**/tests/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
