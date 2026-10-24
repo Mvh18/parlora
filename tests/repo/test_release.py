@@ -115,6 +115,8 @@ def test_every_manifest_carries_the_released_version(repo_root: Path) -> None:
     for package in lock["package"]:
         if "virtual" in package["source"] or "editable" in package["source"]:
             versions[f"uv.lock:{package['name']}"] = package["version"]
+    contract = json.loads((repo_root / "contracts" / "openapi.json").read_text("utf-8"))
+    versions["contracts/openapi.json"] = contract["info"]["version"]
     stale = {name: v for name, v in versions.items() if v != released}
     assert not stale, f"versions differ from {released}: {stale}"
 
@@ -128,6 +130,14 @@ def test_release_please_bumps_every_manifest(repo_root: Path) -> None:
     manifests = {str(p) for p in tracked(repo_root, "pyproject.toml")}
     manifests |= {str(p) for p in tracked(repo_root, "package.json")} - {"package.json"}
     assert manifests | {"uv.lock"} <= bumped
+
+
+def test_release_please_bumps_the_contract_version(repo_root: Path) -> None:
+    # The app reports the package version in the contract's `info.version`, so
+    # a release that leaves contracts/openapi.json behind fails the drift check.
+    config = json.loads((repo_root / "release-please-config.json").read_text("utf-8"))
+    entry = {"type": "json", "path": "contracts/openapi.json", "jsonpath": "$.info.version"}
+    assert entry in config["packages"]["."]["extra-files"]
 
 
 def test_release_please_bumps_every_local_package_in_the_lockfile(repo_root: Path) -> None:
