@@ -62,7 +62,10 @@ def test_wrong_method_is_a_405_problem(client: TestClient) -> None:
 
 
 def test_invalid_input_is_a_422_problem_with_field_errors(faulty_client: TestClient) -> None:
-    response = faulty_client.get("/api/v1/_test/typed", params={"count": "-5"})
+    # A fixed request id: a generated one may itself contain "-5" (see the last assertion).
+    response = faulty_client.get(
+        "/api/v1/_test/typed", params={"count": "-5"}, headers={"X-Request-ID": "fixed-id"}
+    )
 
     assert response.status_code == 422
     assert response.headers["content-type"] == PROBLEM_JSON
