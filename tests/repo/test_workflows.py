@@ -73,3 +73,12 @@ def test_server_jobs_run_their_recipes(repo_root: Path, job: str) -> None:
     commands = " ".join(step.get("run", "") for step in jobs[job]["steps"])
     expected = {"server": "just test-server", "contract": "export_openapi.py --check"}
     assert expected[job] in commands
+
+
+def test_docker_job_checks_the_runtime_image(repo_root: Path) -> None:
+    jobs = load(repo_root / ".github" / "workflows" / "ci.yml")["jobs"]
+    commands = " ".join(step.get("run", "") for step in jobs["docker"]["steps"])
+    assert "compose.nogpu.yaml" in commands
+    assert "config" in commands
+    assert ".Config.User" in commands
+    assert "/api/v1/health/live" in commands
