@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/Mvh18/parlora-tutor/compare/v0.2.0...v0.3.0) (2026-10-24)
+
+
+### Features
+
+* **server:** add app factory, problem details and catalogue api ([0ee4564](https://github.com/Mvh18/parlora-tutor/commit/0ee45646c358382e77fbddb9809bee56d599d696)), closes [#22](https://github.com/Mvh18/parlora-tutor/issues/22)
+* **server:** add async database baseline with alembic ([45fb7c6](https://github.com/Mvh18/parlora-tutor/commit/45fb7c6aae94ffea5b154b67586b150f91dadd4e)), closes [#22](https://github.com/Mvh18/parlora-tutor/issues/22)
+* **server:** add versioned health and catalogue api ([b6bbfd2](https://github.com/Mvh18/parlora-tutor/commit/b6bbfd26ce1bc829d7ac6bf8cb753f4f408fe50e))
+* **server:** export openapi contract ([e979c66](https://github.com/Mvh18/parlora-tutor/commit/e979c66049f0ac8dc8d9c2dd3d3a1a8cc89715d8)), closes [#22](https://github.com/Mvh18/parlora-tutor/issues/22)
+
+
+### Bug Fixes
+
+* **deps:** patch filelock advisories ([22aabdf](https://github.com/Mvh18/parlora-tutor/commit/22aabdfac37b4d85d32a8064f3605350eabef865))
+* **deps:** patch filelock advisories ([9e5f0dd](https://github.com/Mvh18/parlora-tutor/commit/9e5f0ddc8bf3da5913be308a009677b1985554bd)), closes [#32](https://github.com/Mvh18/parlora-tutor/issues/32)
+* **release:** bump the openapi contract version ([274456c](https://github.com/Mvh18/parlora-tutor/commit/274456cc207779d90d62440f11fbfca5602fe4c8))
+* **release:** bump the openapi contract version ([6a1bd68](https://github.com/Mvh18/parlora-tutor/commit/6a1bd68c8a824182171cbae62e595bf8509d98f3))
+
 ## [0.2.0](https://github.com/Mvh18/parlora-tutor/compare/v0.1.0...v0.2.0) (2026-10-22)
 
 
