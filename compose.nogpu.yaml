@@ -1,0 +1,10 @@
+# Override for CI runners and machines without an NVIDIA GPU:
+#   docker compose -f compose.yaml -f compose.nogpu.yaml up   (or `just up nogpu`)
+# Removes the GPU reservations; everything else is unchanged.
+
+services:
+  server:
+    deploy: !reset {}
+
+  ollama:
+    deploy: !reset {}

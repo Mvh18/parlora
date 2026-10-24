@@ -26,8 +26,9 @@ REQUIRED_RECIPES = [
     "check",
 ]
 
-# A doc comment line followed by the recipe header, e.g. "# Run tests\ntest: lint".
-RECIPE = re.compile(r"^# (?P<doc>.+)\n(?:\[.*\]\n)*(?P<name>[a-z][a-z0-9-]*)\b[^:=\n]*:(?!=)", re.M)
+# A doc comment line followed by the recipe header, e.g. "# Run tests\ntest: lint" or
+# "# Start\nup mode=\"gpu\":"; assignments (`name := value`) do not match.
+RECIPE = re.compile(r"^# (?P<doc>.+)\n(?:\[.*\]\n)*(?P<name>[a-z][a-z0-9-]*)\b[^:\n]*:(?!=)", re.M)
 
 
 def documented_recipes(repo_root: Path) -> dict[str, str]:
@@ -45,3 +46,11 @@ def test_recipe_exists_with_description(repo_root: Path, name: str) -> None:
 def test_windows_shell_is_powershell(repo_root: Path) -> None:
     text = (repo_root / "justfile").read_text(encoding="utf-8")
     assert re.search(r"^set windows-shell := \[\"powershell(\.exe)?\"", text, re.M)
+
+
+@pytest.mark.parametrize("name", ["up", "down", "dev"])
+def test_stack_recipes_drive_docker_compose(repo_root: Path, name: str) -> None:
+    text = (repo_root / "justfile").read_text(encoding="utf-8")
+    body = re.search(rf"^{name}\b[^\n]*:\n((?:[ \t]+\S[^\n]*\n)+)", text, re.M)
+    assert body, f"recipe `{name}` has no body"
+    assert "docker compose" in body.group(1)

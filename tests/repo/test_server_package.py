@@ -13,6 +13,8 @@ from parlora_server.config import ENV_PREFIX, NESTED_DELIMITER, Settings, load_s
 pytestmark = pytest.mark.unit
 
 DOCUMENTED = re.compile(r"^(?P<name>PARLORA_[A-Z0-9_]+)=", re.MULTILINE)
+# Read by Compose for interpolation, not by the server.
+COMPOSE_ONLY = {"PARLORA_SERVER_HOST_PORT", "PARLORA_POSTGRES_HOST_PORT"}
 
 
 def env_vars(model: type[BaseModel], prefix: str = ENV_PREFIX) -> set[str]:
@@ -39,9 +41,12 @@ def test_every_setting_is_documented_in_env_example(repo_root: Path) -> None:
 
 
 def test_env_example_documents_no_unknown_server_setting(repo_root: Path) -> None:
-    # Compose-only variables (host ports, local runtime work) will need an allow-list here.
-    unknown = documented(repo_root) - env_vars(Settings)
+    unknown = documented(repo_root) - env_vars(Settings) - COMPOSE_ONLY
     assert not unknown, f".env.example documents unknown settings {sorted(unknown)}"
+
+
+def test_env_example_documents_the_compose_host_ports(repo_root: Path) -> None:
+    assert documented(repo_root) >= COMPOSE_ONLY
 
 
 def test_env_example_shows_the_defaults(repo_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:

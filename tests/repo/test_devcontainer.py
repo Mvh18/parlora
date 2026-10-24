@@ -1,5 +1,6 @@
 """The Dev Container runs the same runtimes the project pins."""
 
+import json
 import re
 from pathlib import Path
 
@@ -35,3 +36,10 @@ def test_dependabot_does_not_propose_other_runtime_lines(repo_root: Path) -> Non
     ignored = {rule["dependency-name"]: set(rule["update-types"]) for rule in docker["ignore"]}
     assert ignored["python"] >= {"version-update:semver-major", "version-update:semver-minor"}
     assert ignored["node"] >= {"version-update:semver-major"}
+
+
+def test_forwards_the_server_host_port(repo_root: Path) -> None:
+    """The server is published on 8700, not 8000 (taken by the course platform)."""
+    config = json.loads((repo_root / ".devcontainer" / "devcontainer.json").read_text("utf-8"))
+    assert 8700 in config["forwardPorts"]
+    assert 8000 not in config["forwardPorts"]

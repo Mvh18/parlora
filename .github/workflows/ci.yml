@@ -104,6 +104,36 @@ jobs:
       - run: uv sync --locked
       - run: uv run just test-repo
 
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate the compose configuration
+        run: |
+          docker compose -f compose.yaml -f compose.nogpu.yaml config --quiet
+          docker compose -f compose.yaml -f compose.dev.yaml -f compose.nogpu.yaml config --quiet
+      - name: Start the stack without a GPU
+        run: docker compose -f compose.yaml -f compose.nogpu.yaml up --detach --build --wait
+      - name: The runtime image runs as a non-root user
+        run: |
+          user="$(docker image inspect --format '{{.Config.User}}' parlora-server)"
+          echo "image user: ${user:-<unset>}"
+          case "$user" in "" | root | 0 | 0:*) exit 1 ;; esac
+      - name: Smoke-test the server
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8700/api/v1/health/live
+          curl --fail --silent --show-error http://127.0.0.1:8700/api/v1/health/ready
+      - name: Show the logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop the stack
+        if: always()
+        run: docker compose --profile '*' down --volumes
+
   devcontainer:
     name: dev container
     runs-on: ubuntu-latest
@@ -130,7 +160,7 @@ jobs:
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [lint, core, server, contract, repo, devcontainer, security]
+    needs: [lint, core, server, contract, repo, docker, devcontainer, security]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

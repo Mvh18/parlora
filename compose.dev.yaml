@@ -1,0 +1,17 @@
+# Development override (`just dev`): the `dev` image target with the sources
+# bind-mounted, so uvicorn reloads on every change. Only the source trees are
+# mounted; the host's .env, .venv and tests stay out of the container.
+
+services:
+  server:
+    build:
+      target: dev
+    volumes:
+      - type: bind
+        source: ./packages/core/src
+        target: /app/packages/core/src
+        read_only: true
+      - type: bind
+        source: ./apps/server/src
+        target: /app/apps/server/src
+        read_only: true

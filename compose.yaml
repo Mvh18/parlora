@@ -1,0 +1,89 @@
+# Parlora local stack (design D12, D19). Start it with `just up`.
+#
+# - Every published port binds to 127.0.0.1: nothing is reachable from the network.
+# - Host ports default to 8700 (server) and 5433 (PostgreSQL) so the stack runs
+#   next to a Laravel app on 8000 and another PostgreSQL on 5432; override them
+#   with PARLORA_SERVER_HOST_PORT and PARLORA_POSTGRES_HOST_PORT in `.env`.
+# - Self-contained: no external networks or volumes. Anything shared with
+#   another project belongs in an optional override file.
+# - No GPU? Add compose.nogpu.yaml (`just up nogpu`).
+
+name: parlora
+
+services:
+  postgres:
+    image: postgres:18.6-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
+    environment:
+      # Local development credentials; the port is only reachable from this machine.
+      POSTGRES_USER: parlora
+      POSTGRES_PASSWORD: parlora
+      POSTGRES_DB: parlora
+    ports:
+      - "127.0.0.1:${PARLORA_POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "--username=parlora", "--dbname=parlora"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+      target: runtime
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Inside the stack the server reaches PostgreSQL by service name.
+      PARLORA_DATABASE__URL: postgresql+asyncpg://parlora:parlora@postgres:5432/parlora
+    ports:
+      - "127.0.0.1:${PARLORA_SERVER_HOST_PORT:-8700}:8000"
+    extra_hosts:
+      # Native Ollama on the host (the default PARLORA_LLM__BASE_URL).
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      # Phase 1 loads and warms up models before it is ready (ADR 0002).
+      start_period: 30s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Optional containerised Ollama: `docker compose --profile ollama up`, then set
+  # PARLORA_LLM__BASE_URL=http://ollama:11434/v1. Stop a native Ollama first: both use 11434.
+  ollama:
+    image: ollama/ollama:0.40.10@sha256:4c5b27871a3239a717048f9b93057680a51b60c8119a7016aebb57f938e25e35
+    profiles: [ollama]
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  postgres-data:
+  ollama-models:
